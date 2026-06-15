@@ -1,0 +1,48 @@
+[
+  {
+    "id": "DEP-1781504512492",
+    "userId": "1781503861089",
+    "userName": "lavkush",
+    "userRole": "customer",
+    "amount": 1000,
+    "type": "jama",
+    "previousBalance": 40000,
+    "newBalance": 39000,
+    "date": "2026-06-15T06:21:52.492Z"
+  },
+  {
+    "id": "DEP-1781507229463",
+    "userId": "1781502564719",
+    "userName": "a",
+    "userRole": "customer",
+    "amount": 100,
+    "type": "jama",
+    "previousBalance": 257.5,
+    "newBalance": 157.5,
+    "date": "2026-06-15T07:07:09.463Z"
+  },
+  {
+    "id": "DEP-1781509256633",
+    "userId": "1781502564719",
+    "userName": "a",
+    "userRole": "customer",
+    "amount": 64,
+    "type": "jama",
+    "paymentMode": "Offline (Cash)",
+    "previousBalance": 264.5,
+    "newBalance": 200.5,
+    "date": "2026-06-15T07:40:56.633Z"
+  },
+  {
+    "id": "DEP-1781510568615",
+    "userId": "1781503861089",
+    "userName": "lavkush",
+    "userRole": "customer",
+    "amount": 1000,
+    "type": "jama",
+    "paymentMode": "Online (PhonePe/UPI)",
+    "previousBalance": 39020,
+    "newBalance": 38020,
+    "date": "2026-06-15T08:02:48.615Z"
+  }
+]

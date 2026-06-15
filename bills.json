@@ -1,0 +1,412 @@
+[
+  {
+    "id": "BILL-1781502649797",
+    "customerId": "1781502564719",
+    "customerName": "a",
+    "items": [
+      {
+        "productName": "aloo",
+        "weight": "1",
+        "rate": "3",
+        "total": 3
+      }
+    ],
+    "previousBalance": 0,
+    "billAmount": 3,
+    "grandTotal": 3,
+    "paidAmount": 0,
+    "newBalance": 3,
+    "totalProfit": 1,
+    "date": "2026-06-15T05:50:49.797Z"
+  },
+  {
+    "id": "BILL-1781502940099",
+    "customerId": "1781502564719",
+    "customerName": "a",
+    "items": [
+      {
+        "productName": "aloo",
+        "weight": "9",
+        "rate": "5",
+        "total": 45
+      }
+    ],
+    "previousBalance": 3,
+    "billAmount": 45,
+    "grandTotal": 48,
+    "paidAmount": 0,
+    "newBalance": 48,
+    "totalProfit": 27,
+    "date": "2026-06-15T05:55:40.099Z"
+  },
+  {
+    "id": "BILL-1781503715094",
+    "customerId": "1781502564719",
+    "customerName": "a",
+    "items": [
+      {
+        "productName": "aloo",
+        "weight": "10",
+        "rate": "5",
+        "total": 50
+      }
+    ],
+    "previousBalance": 48,
+    "billAmount": 50,
+    "grandTotal": 98,
+    "paidAmount": 0,
+    "newBalance": 98,
+    "totalProfit": 30,
+    "date": "2026-06-15T06:08:35.094Z"
+  },
+  {
+    "id": "BILL-1781504779109",
+    "customerId": "1781502564719",
+    "customerName": "a",
+    "items": [
+      {
+        "productName": "aloo",
+        "weight": "10",
+        "rate": "10",
+        "total": 100
+      }
+    ],
+    "rawBillAmount": 100,
+    "commissionPercent": 0.5,
+    "commissionAmount": 0.5,
+    "previousBalance": 98,
+    "billAmount": 100.5,
+    "grandTotal": 198.5,
+    "paidAmount": 0,
+    "newBalance": 198.5,
+    "totalProfit": 80.5,
+    "date": "2026-06-15T06:26:19.109Z"
+  },
+  {
+    "id": "BILL-1781507133912",
+    "customerId": "1781502564719",
+    "customerName": "a",
+    "items": [
+      {
+        "productName": "aloo",
+        "weight": "5",
+        "rate": "5",
+        "total": 25
+      },
+      {
+        "productName": "pyaz",
+        "weight": "2",
+        "rate": "15",
+        "total": 30
+      }
+    ],
+    "rawBillAmount": 55,
+    "commissionPercent": 0,
+    "commissionAmount": 0,
+    "previousBalance": 198.5,
+    "billAmount": 55,
+    "grandTotal": 253.5,
+    "paidAmount": 0,
+    "newBalance": 253.5,
+    "totalProfit": 25,
+    "date": "2026-06-15T07:05:33.912Z"
+  },
+  {
+    "id": "BILL-1781507200471",
+    "customerId": "1781502564719",
+    "customerName": "a",
+    "items": [
+      {
+        "productName": "aloo",
+        "weight": "1",
+        "rate": "4",
+        "total": 4
+      }
+    ],
+    "rawBillAmount": 4,
+    "commissionPercent": 0,
+    "commissionAmount": 0,
+    "previousBalance": 253.5,
+    "billAmount": 4,
+    "grandTotal": 257.5,
+    "paidAmount": 0,
+    "newBalance": 257.5,
+    "totalProfit": 2,
+    "date": "2026-06-15T07:06:40.471Z"
+  },
+  {
+    "id": "BILL-1781507745220",
+    "customerId": "1781502564719",
+    "customerName": "a",
+    "items": [
+      {
+        "productName": "aloo",
+        "weight": "5",
+        "rate": "4",
+        "total": 20
+      },
+      {
+        "productName": "pyaz",
+        "weight": "1",
+        "rate": 15,
+        "total": 15
+      }
+    ],
+    "rawBillAmount": 35,
+    "commissionPercent": 0,
+    "commissionAmount": 0,
+    "previousBalance": 157.5,
+    "billAmount": 35,
+    "grandTotal": 192.5,
+    "paidAmount": 0,
+    "newBalance": 192.5,
+    "totalProfit": 15,
+    "date": "2026-06-15T07:15:45.220Z"
+  },
+  {
+    "id": "BILL-1781507947824",
+    "customerId": "1781502564719",
+    "customerName": "a",
+    "items": [
+      {
+        "productName": "aloo",
+        "weight": "1",
+        "rate": "10",
+        "total": 10
+      }
+    ],
+    "rawBillAmount": 10,
+    "commissionPercent": 0,
+    "commissionAmount": 0,
+    "previousBalance": 192.5,
+    "billAmount": 10,
+    "grandTotal": 202.5,
+    "paidAmount": 0,
+    "newBalance": 202.5,
+    "totalProfit": 8,
+    "date": "2026-06-15T07:19:07.824Z"
+  },
+  {
+    "id": "BILL-1781508147176",
+    "customerId": "1781502564719",
+    "customerName": "a",
+    "items": [
+      {
+        "productName": "aloo",
+        "weight": "1",
+        "rate": "11",
+        "total": 11
+      }
+    ],
+    "rawBillAmount": 11,
+    "commissionPercent": 0,
+    "commissionAmount": 0,
+    "previousBalance": 202.5,
+    "billAmount": 11,
+    "grandTotal": 213.5,
+    "paidAmount": 0,
+    "newBalance": 213.5,
+    "totalProfit": 9,
+    "date": "2026-06-15T07:22:27.176Z"
+  },
+  {
+    "id": "BILL-1781508386949",
+    "customerId": "1781502564719",
+    "customerName": "a",
+    "items": [
+      {
+        "productName": "aloo",
+        "weight": "1",
+        "rate": "11",
+        "total": 11
+      }
+    ],
+    "rawBillAmount": 11,
+    "commissionPercent": 0,
+    "commissionAmount": 0,
+    "previousBalance": 213.5,
+    "billAmount": 11,
+    "grandTotal": 224.5,
+    "paidAmount": 0,
+    "newBalance": 224.5,
+    "totalProfit": 9,
+    "date": "2026-06-15T07:26:26.949Z"
+  },
+  {
+    "id": "BILL-1781508703595",
+    "customerId": "1781503861089",
+    "customerName": "lavkush",
+    "items": [
+      {
+        "productId": "1781502608593",
+        "productName": "aloo",
+        "weight": 1,
+        "rate": 10,
+        "total": 10
+      }
+    ],
+    "rawBillAmount": 10,
+    "commissionAmount": 10,
+    "previousBalance": 39000,
+    "billAmount": 20,
+    "grandTotal": 39020,
+    "paidAmount": 0,
+    "paymentMode": "Offline (Cash)",
+    "newBalance": 39020,
+    "totalProfit": 18,
+    "date": "2026-06-15T07:31:43.595Z"
+  },
+  {
+    "id": "BILL-1781509161468",
+    "customerId": "1781502564719",
+    "customerName": "a",
+    "items": [
+      {
+        "productId": "1781506151477",
+        "productName": "pyaz",
+        "weight": 2,
+        "rate": 15,
+        "total": 30
+      }
+    ],
+    "rawBillAmount": 30,
+    "commissionAmount": 10,
+    "previousBalance": 224.5,
+    "billAmount": 40,
+    "grandTotal": 264.5,
+    "paidAmount": 0,
+    "paymentMode": "Offline (Cash)",
+    "newBalance": 264.5,
+    "totalProfit": 20,
+    "date": "2026-06-15T07:39:21.468Z"
+  },
+  {
+    "id": "BILL-1781510315977",
+    "customerId": "1781502564719",
+    "customerName": "a",
+    "items": [
+      {
+        "productId": "1781510130399",
+        "productName": "tamater",
+        "weight": 1,
+        "rate": 1050,
+        "unitType": "Krate",
+        "total": 1050
+      }
+    ],
+    "rawBillAmount": 1050,
+    "commissionAmount": 10,
+    "previousBalance": 200.5,
+    "billAmount": 1060,
+    "grandTotal": 1260.5,
+    "paidAmount": 0,
+    "paymentMode": "Offline (Cash)",
+    "newBalance": 1260.5,
+    "totalProfit": 110,
+    "date": "2026-06-15T07:58:35.977Z"
+  },
+  {
+    "id": "BILL-1781510396667",
+    "customerId": "1781502564719",
+    "customerName": "a",
+    "items": [
+      {
+        "productId": "1781502608593",
+        "productName": "aloo",
+        "weight": 30,
+        "rate": 0,
+        "total": 0
+      }
+    ],
+    "rawBillAmount": 0,
+    "commissionAmount": 10,
+    "previousBalance": 1260.5,
+    "billAmount": 10,
+    "grandTotal": 1270.5,
+    "paidAmount": 0,
+    "paymentMode": "Offline (Cash)",
+    "newBalance": 1270.5,
+    "totalProfit": -50,
+    "date": "2026-06-15T07:59:56.667Z"
+  },
+  {
+    "id": "BILL-1781510514403",
+    "customerId": "1781502564719",
+    "customerName": "a",
+    "items": [
+      {
+        "productId": "1781510130399",
+        "productName": "tamater",
+        "weight": 1,
+        "rate": 1000,
+        "unitType": "Krate",
+        "total": 1000
+      },
+      {
+        "productId": "1781502608593",
+        "productName": "aloo",
+        "weight": 5,
+        "rate": 20,
+        "total": 100
+      },
+      {
+        "productId": "1781506151477",
+        "productName": "pyaz",
+        "weight": 1,
+        "rate": 22,
+        "total": 22
+      },
+      {
+        "productId": "1781502608593",
+        "productName": "aloo",
+        "weight": 2,
+        "rate": 15,
+        "total": 30
+      }
+    ],
+    "rawBillAmount": 1152,
+    "commissionAmount": 10,
+    "previousBalance": 1270.5,
+    "billAmount": 1162,
+    "grandTotal": 2432.5,
+    "paidAmount": 0,
+    "paymentMode": "Offline (Cash)",
+    "newBalance": 2432.5,
+    "totalProfit": 188,
+    "date": "2026-06-15T08:01:54.403Z"
+  },
+  {
+    "id": "BILL-1781511256065",
+    "customerId": "1781502564719",
+    "customerName": "a",
+    "items": [
+      {
+        "productId": "1781502608593",
+        "productName": "aloo",
+        "weight": 5,
+        "rate": 5,
+        "total": 25
+      },
+      {
+        "productId": "1781510130399",
+        "productName": "tamater",
+        "weight": 1,
+        "rate": 1050,
+        "unitType": "Krate",
+        "total": 1050
+      }
+    ],
+    "rawBillAmount": 1075,
+    "commissionAmount": 10,
+    "previousBalance": 2432.5,
+    "billAmount": 1085,
+    "grandTotal": 3517.5,
+    "paidAmount": 0,
+    "paymentMode": "Offline (Cash)",
+    "newBalance": 3517.5,
+    "totalProfit": 125,
+    "date": "2026-06-15T08:14:16.065Z",
+    "isEdited": true,
+    "lastModified": "2026-06-15T08:18:18.975Z"
+  }
+]
