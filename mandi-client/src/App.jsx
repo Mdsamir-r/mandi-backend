@@ -58,7 +58,7 @@ export default function App() {
   const [newProdUnit, setNewProdUnit] = useState('Kg');
   const [newProdSupplier, setNewProdSupplier] = useState('');
 
-  const API_URL = 'https://mandi-backend.onrender.com/api';
+  const API_URL = 'https://mandi-backend-wk26.onrender.com/api';
 
   // 100% SECURE DYNAMIC DATA RETRIEVAL
   const fetchData = async () => {

@@ -4,17 +4,16 @@ const mongoose = require('mongoose');
 
 const app = express();
 
-// 💎 GLOBAL CORS POLICY PASS WITH PRODUCTION EXPANSION
+// 💎 GLOBAL CORS POLICY PASS
 app.use(cors({
   origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type"]
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 app.use(express.json());
 
 // 🌐 CLOUD CONFIGURATION PATH
-// Note: Local machine par test karne ke liye aap is string ko "mongodb://127.0.0.1:27017/mandi_db" se replace kar sakte hain.
-const MONGO_URI = process.env.MONGO_URI || "mongodb://samir014:7jmEJU4dzs8pIhxu@cluster0-shard-00-00.d8ui6ol.mongodb.net:27017,cluster0-shard-00-01.d8ui6ol.mongodb.net:27017,cluster0-shard-00-02.d8ui6ol.mongodb.net:27017/mandi_db?ssl=true&replicaSet=atlas-d8ui6ol-shard-0&authSource=admin&retryWrites=true&w=majority";
+const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://samir014:7jmEJU4dzs8pIhxu@cluster0.d8ui6ol.mongodb.net/mandi_db?retryWrites=true&w=majority";
 
 mongoose.connect(MONGO_URI)
   .then(() => console.log("💎 SUCCESS: MANDI LIVE PRODUCTION ENGINE SAFELY LINKED CLOUD DATABASE!"))
@@ -29,7 +28,7 @@ const UserSchema = new mongoose.Schema({
 const User = mongoose.model('User', UserSchema);
 
 const ProductSchema = new mongoose.Schema({
-  name: String, stock: Number, purchasePrice: Number, sellingPrice: Number, unitType: String, supplierId: String
+  name: String, stock: Number, purchasePrice: Number, sellingPrice: Number, unitType: String, supplierId: String, supplierName: String
 });
 const Product = mongoose.model('Product', ProductSchema);
 
@@ -50,6 +49,7 @@ const Inward = mongoose.model('Inward', InwardSchema);
 
 // ================= API ENDPOINTS =================
 
+// Add User
 app.post('/api/users', async (req, res) => {
   try {
     const { name, phone, role, initialBalance } = req.body;
@@ -59,6 +59,7 @@ app.post('/api/users', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Get All Users
 app.get('/api/users', async (req, res) => {
   try {
     const users = await User.find();
@@ -66,6 +67,23 @@ app.get('/api/users', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// UPDATE USER (Edit Name, Phone, Balance) - NEW 🚀
+app.put('/api/users/update/:id', async (req, res) => {
+  try {
+    const { name, phone, balance } = req.body;
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'User missing' });
+
+    if (name) user.name = name;
+    if (phone) user.phone = phone;
+    if (balance !== undefined) user.balance = Number(balance);
+
+    await user.save();
+    res.json({ message: 'User updated successfully', user });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Delete User
 app.post('/api/users/delete/:id', async (req, res) => {
   try {
     const { secretCode } = req.body;
@@ -75,46 +93,72 @@ app.post('/api/users/delete/:id', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// ADD STOCK (FIXED: Kisaan ka auto-bill/minus hata diya gaya hai 🥦)
 app.post('/api/products', async (req, res) => {
   try {
     const { name, stock, purchasePrice, sellingPrice, unitType, supplierId } = req.body;
     const quantity = Number(stock);
-    const buyRate = Number(purchasePrice);
-    const totalCost = quantity * buyRate;
+    const buyRate = Number(purchasePrice) || 0;
     let supplierName = 'Unknown Supplier';
 
     if (supplierId && mongoose.Types.ObjectId.isValid(supplierId)) {
       const supplier = await User.findById(supplierId);
       if (supplier) {
-        supplier.balance -= totalCost;
         supplierName = supplier.name;
-        await supplier.save();
+        // ❌ BALANCE AUTOMATIC MINUS LOGIC REMOVED AS REQUESTED BY USER
       }
     }
-
-    const newInward = new Inward({ id: 'CHALLAN-' + Date.now(), supplierId, supplierName, productName: name, quantity, purchasePrice: buyRate, totalCost, unitType });
-    await newInward.save();
 
     let product = await Product.findOne({ name: { $regex: new RegExp("^" + name + "$", "i") }, unitType });
     if (product) {
       product.stock += quantity;
       product.purchasePrice = buyRate;
-      product.sellingPrice = Number(sellingPrice);
+      product.sellingPrice = Number(sellingPrice) || 0;
+      product.supplierId = supplierId;
+      product.supplierName = supplierName;
     } else {
-      product = new Product({ name, stock: quantity, purchasePrice: buyRate, sellingPrice: Number(sellingPrice), unitType, supplierId });
+      product = new Product({ name, stock: quantity, purchasePrice: buyRate, sellingPrice: Number(sellingPrice) || 0, unitType, supplierId, supplierName });
     }
     await product.save();
-    res.status(201).json({ message: 'Stock added', inward: newInward });
+    res.status(201).json({ message: 'Stock added only under supplier name', product });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Get All Products
 app.get('/api/products', async (req, res) => {
   try {
     const prods = await Product.find();
-    res.json(prods.map(p => ({ id: p._id.toString(), name: p.name, stock: p.stock, purchasePrice: p.purchasePrice, sellingPrice: p.sellingPrice, unitType: p.unitType })));
+    res.json(prods.map(p => ({ id: p._id.toString(), name: p.name, stock: p.stock, purchasePrice: p.purchasePrice, sellingPrice: p.sellingPrice, unitType: p.unitType, supplierId: p.supplierId, supplierName: p.supplierName || 'N/A' })));
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// UPDATE PRODUCT STOCK (Edit Stock/Rates/Wastage) - NEW 🚀
+app.put('/api/products/update/:id', async (req, res) => {
+  try {
+    const { name, stock, purchasePrice, sellingPrice, unitType } = req.body;
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ error: 'Product missing' });
+
+    if (name) product.name = name;
+    if (stock !== undefined) product.stock = Number(stock);
+    if (purchasePrice !== undefined) product.purchasePrice = Number(purchasePrice);
+    if (sellingPrice !== undefined) product.sellingPrice = Number(sellingPrice);
+    if (unitType) product.unitType = unitType;
+
+    await product.save();
+    res.json({ message: 'Stock updated', product });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// DELETE PRODUCT FROM LIVE STOCK - NEW 🚀
+app.delete('/api/products/:id', async (req, res) => {
+  try {
+    await Product.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Product completely removed from stock vault' });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Create Customer Bill
 app.post('/api/bills', async (req, res) => {
   try {
     const { userId, items, paidAmount, customCommission, paymentMode } = req.body;
@@ -156,12 +200,16 @@ app.post('/api/bills', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Edit/Modify Bill
 app.put('/api/bills/:id', async (req, res) => {
   try {
     const billId = req.params.id;
     const { items, paidAmount, customCommission, paymentMode } = req.body;
     const oldBill = await Bill.findOne({ id: billId });
+    if (!oldBill) return res.status(404).json({ error: 'Bill missing' });
+    
     const customer = await User.findById(oldBill.customerId);
+    if (!customer) return res.status(404).json({ error: 'Customer missing' });
 
     for (let oldItem of oldBill.items) {
       const product = await Product.findById(oldItem.productId);
@@ -178,12 +226,14 @@ app.put('/api/bills/:id', async (req, res) => {
 
     for (let item of items) {
       const product = await Product.findById(item.productId);
-      product.stock -= Number(item.weight);
-      await product.save();
-      const itemTotal = Number(item.weight) * Number(item.rate);
-      rawBillAmount += itemTotal;
-      totalProfit += (Number(item.rate) - product.purchasePrice) * Number(item.weight);
-      updatedBillItems.push({ productId: product._id.toString(), productName: product.name, weight: Number(item.weight), rate: Number(item.rate), unitType: product.unitType, total: itemTotal });
+      if (product) {
+        product.stock -= Number(item.weight);
+        await product.save();
+        const itemTotal = Number(item.weight) * Number(item.rate);
+        rawBillAmount += itemTotal;
+        totalProfit += (Number(item.rate) - product.purchasePrice) * Number(item.weight);
+        updatedBillItems.push({ productId: product._id.toString(), productName: product.name, weight: Number(item.weight), rate: Number(item.rate), unitType: product.unitType, total: itemTotal });
+      }
     }
 
     const commissionAmount = Number(customCommission) || 0;
@@ -208,6 +258,7 @@ app.put('/api/bills/:id', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Save Cash Deposit
 app.post('/api/deposits', async (req, res) => {
   try {
     const { userId, amount, type, paymentMode } = req.body;
@@ -224,6 +275,7 @@ app.post('/api/deposits', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Timeline Ledger
 app.get('/api/users/:id/timeline', async (req, res) => {
   try {
     const uid = req.params.id;
@@ -241,6 +293,7 @@ app.get('/api/users/:id/timeline', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Dashboard Main Data
 app.get('/api/dashboard', async (req, res) => {
   try {
     const bills = await Bill.find();
@@ -277,6 +330,7 @@ app.get('/api/dashboard', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Deep History Breakdown
 app.get('/api/dashboard/deep-history', async (req, res) => {
   try {
     const todayStr = new Date().toDateString();
@@ -287,6 +341,5 @@ app.get('/api/dashboard/deep-history', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 🚀 FIXED FOR LIVE SERVERS (Render provides dynamic ports)
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log('Mandi MERN Cloud DB Active on port ' + PORT));
