@@ -1,0 +1,33 @@
+[
+  {
+    "id": "1781502608593",
+    "name": "aloo",
+    "stock": 13,
+    "purchasePrice": 2
+  },
+  {
+    "id": "1781506151477",
+    "name": "pyaz",
+    "stock": 4,
+    "purchasePrice": 10,
+    "sellingPrice": 15
+  },
+  {
+    "id": "1781510130399",
+    "name": "tamater",
+    "stock": 100,
+    "purchasePrice": 950,
+    "sellingPrice": 1050,
+    "unitType": "Krate",
+    "supplierId": "1781506190919"
+  },
+  {
+    "id": "1781511564917",
+    "name": "chemi",
+    "stock": 50,
+    "purchasePrice": 80,
+    "sellingPrice": 90,
+    "unitType": "Kg",
+    "supplierId": "1781506190919"
+  }
+]

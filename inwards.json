@@ -1,0 +1,13 @@
+[
+  {
+    "id": "CHALLAN-1781511564916",
+    "supplierId": "1781506190919",
+    "supplierName": "z",
+    "productName": "chemi",
+    "quantity": 50,
+    "purchasePrice": 80,
+    "totalCost": 4000,
+    "unitType": "Kg",
+    "date": "2026-06-15T08:19:24.916Z"
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "id": "1781502564719",
+    "name": "a",
+    "phone": "934182",
+    "role": "customer",
+    "balance": 3517.5,
+    "createdAt": "2026-06-15T05:49:24.719Z"
+  },
+  {
+    "id": "1781503861089",
+    "name": "lavkush",
+    "phone": "N/A",
+    "role": "customer",
+    "balance": 38020,
+    "createdAt": "2026-06-15T06:11:01.089Z"
+  }
+]
