@@ -25,7 +25,6 @@ app.use(cors({
 app.use(express.json());
 
 // 🌐 DATABASE CONNECTION CONFIGURATION
-// Naya URL ya toh .env file se aayega, ya neeche fallback string mein daal sakte hain:
 const MONGO_URI = process.env.MONGO_URI || "YAHAN_APNA_NAYA_MONGODB_URL_DALEIN";
 
 mongoose.connect(MONGO_URI)
@@ -72,6 +71,8 @@ const BillSchema = new mongoose.Schema({
   id: { type: String, unique: true },
   customerId: String,
   customerName: String,
+  isDirectBill: { type: Boolean, default: false },
+  note: { type: String, default: '' },
   items: Array,
   rawBillAmount: Number,
   commissionAmount: Number,
@@ -256,18 +257,31 @@ app.delete('/api/products/:id', async (req, res) => {
   }
 });
 
-// Create Customer Bill
+// 🚀 CREATE CUSTOMER BILL (BOTH REGULAR & DIRECT/LUMP-SUM BILLING SUPPORTED)
 app.post('/api/bills', async (req, res) => {
   try {
-    const { userId, items, paidAmount, customCommission, paymentMode } = req.body;
+    const { userId, items, directAmount, note, paidAmount, customCommission, paymentMode } = req.body;
     const customer = await User.findById(userId);
     if (!customer) return res.status(404).json({ error: 'Customer missing' });
 
     let rawBillAmount = 0;
     let totalProfit = 0;
     const billItems = [];
+    const isDirect = directAmount !== undefined && Number(directAmount) > 0;
 
-    if (Array.isArray(items)) {
+    if (isDirect) {
+      // 🌟 DIRECT / MANUAL ENTRY (Bina Sabji Add Kiye)
+      rawBillAmount = Number(directAmount);
+      billItems.push({
+        productId: null,
+        productName: note && note.trim() !== '' ? note.trim() : 'Direct Bill / Manual Entry',
+        weight: 1,
+        rate: rawBillAmount,
+        unitType: 'Lump-sum',
+        total: rawBillAmount
+      });
+    } else if (Array.isArray(items) && items.length > 0) {
+      // 🥦 REGULAR BILL (Sabji aur stock deduction ke sath)
       for (let item of items) {
         const product = await Product.findById(item.productId);
         if (product) {
@@ -289,6 +303,8 @@ app.post('/api/bills', async (req, res) => {
           });
         }
       }
+    } else {
+      return res.status(400).json({ error: 'Ya toh items add karein ya directAmount provide karein' });
     }
 
     const commissionAmount = Number(customCommission) || 0;
@@ -304,6 +320,8 @@ app.post('/api/bills', async (req, res) => {
       id: 'BILL-' + Date.now(),
       customerId: customer._id.toString(),
       customerName: customer.name,
+      isDirectBill: isDirect,
+      note: note || '',
       items: billItems,
       rawBillAmount,
       commissionAmount,
@@ -315,8 +333,9 @@ app.post('/api/bills', async (req, res) => {
       newBalance,
       totalProfit: totalProfit + commissionAmount
     });
+
     await newBill.save();
-    res.status(201).json({ message: 'Bill saved', bill: newBill });
+    res.status(201).json({ message: 'Bill saved successfully', bill: newBill });
   } catch (err) { 
     res.status(500).json({ error: err.message }); 
   }
@@ -326,28 +345,42 @@ app.post('/api/bills', async (req, res) => {
 app.put('/api/bills/:id', async (req, res) => {
   try {
     const billId = req.params.id;
-    const { items, paidAmount, customCommission, paymentMode } = req.body;
+    const { items, directAmount, note, paidAmount, customCommission, paymentMode } = req.body;
     const oldBill = await Bill.findOne({ id: billId });
     if (!oldBill) return res.status(404).json({ error: 'Bill missing' });
     
     const customer = await User.findById(oldBill.customerId);
     if (!customer) return res.status(404).json({ error: 'Customer missing' });
 
-    // Rollback previous stock
-    for (let oldItem of oldBill.items) {
-      const product = await Product.findById(oldItem.productId);
-      if (product) {
-        product.stock += Number(oldItem.weight);
-        await product.save();
+    // Rollback previous stock only if it was regular itemized bill
+    if (!oldBill.isDirectBill && Array.isArray(oldBill.items)) {
+      for (let oldItem of oldBill.items) {
+        if (oldItem.productId) {
+          const product = await Product.findById(oldItem.productId);
+          if (product) {
+            product.stock += Number(oldItem.weight);
+            await product.save();
+          }
+        }
       }
     }
 
-    // Apply new items
     let rawBillAmount = 0;
     let totalProfit = 0;
     const updatedBillItems = [];
+    const isDirect = directAmount !== undefined && Number(directAmount) > 0;
 
-    if (Array.isArray(items)) {
+    if (isDirect) {
+      rawBillAmount = Number(directAmount);
+      updatedBillItems.push({
+        productId: null,
+        productName: note && note.trim() !== '' ? note.trim() : 'Direct Bill / Manual Entry',
+        weight: 1,
+        rate: rawBillAmount,
+        unitType: 'Lump-sum',
+        total: rawBillAmount
+      });
+    } else if (Array.isArray(items) && items.length > 0) {
       for (let item of items) {
         const product = await Product.findById(item.productId);
         if (product) {
@@ -382,6 +415,8 @@ app.put('/api/bills/:id', async (req, res) => {
     await customer.save();
 
     oldBill.items = updatedBillItems;
+    oldBill.isDirectBill = isDirect;
+    oldBill.note = note || '';
     oldBill.rawBillAmount = rawBillAmount;
     oldBill.commissionAmount = commissionAmount;
     oldBill.billAmount = newBillAmount;
@@ -444,7 +479,7 @@ app.get('/api/users/:id/timeline', async (req, res) => {
     bills.forEach(b => timeline.push({ 
       id: b.id, 
       date: b.date, 
-      type: 'Credit (Bikri Parcha)', 
+      type: b.isDirectBill ? 'Direct Bill (Kharcha/Parcha)' : 'Credit (Bikri Parcha)', 
       description: b.items.map(i => i.productName).join(', '), 
       amount: b.billAmount, 
       cashImpact: 'Jama: Rs. ' + b.paidAmount, 
@@ -511,7 +546,9 @@ app.get('/api/dashboard', async (req, res) => {
         todayProfit += b.totalProfit; 
         todayCashReceived += b.paidAmount;
         b.items.forEach(it => {
-          todayWeightSold += Number(it.weight) || 0;
+          if (!b.isDirectBill) {
+            todayWeightSold += Number(it.weight) || 0;
+          }
           const key = it.productName;
           if (!todayItemBreakdown[key]) todayItemBreakdown[key] = { name: it.productName, unit: it.unitType || 'Kg', totalQty: 0, totalRevenue: 0 };
           todayItemBreakdown[key].totalQty += Number(it.weight) || 0; 
