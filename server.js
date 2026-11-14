@@ -475,3 +475,56 @@ app.get('/api/dashboard', async (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server live on port ${PORT}`));
+
+// PUT /api/deposits/:id - Resilient Update Endpoint
+app.put('/api/deposits/:id', async (req, res) => {
+  try {
+    const { amount, date, paymentMode } = req.body;
+    const targetId = req.params.id;
+
+    // Support both MongoDB _id and string id
+    let deposit = null;
+    if (mongoose.Types.ObjectId.isValid(targetId)) {
+      deposit = await Deposit.findById(targetId);
+    }
+    if (!deposit) {
+      deposit = await Deposit.findOne({ id: targetId });
+    }
+
+    if (!deposit) {
+      return res.status(404).json({ error: 'Deposit record missing or not found' });
+    }
+
+    const user = await User.findById(deposit.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'Linked user missing' });
+    }
+
+    const oldAmount = Number(deposit.amount) || 0;
+    const newAmount = Number(amount) || 0;
+    const diff = newAmount - oldAmount;
+
+    // Recalculate balance
+    if (user.role === 'customer') {
+      user.balance -= diff;
+    } else {
+      user.balance += diff;
+    }
+    await user.save();
+
+    deposit.amount = newAmount;
+    if (date) {
+      // Ensure valid date parsing
+      deposit.date = new Date(date);
+    }
+    if (paymentMode) {
+      deposit.paymentMode = paymentMode;
+    }
+    deposit.newBalance = user.balance;
+
+    await deposit.save();
+    res.json({ message: 'Deposit successfully updated', deposit });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
