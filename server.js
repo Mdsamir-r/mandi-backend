@@ -525,6 +525,80 @@ app.put('/api/deposits/:id', async (req, res) => {
     await deposit.save();
     res.json({ message: 'Deposit successfully updated', deposit });
   } catch (err) {
+    res.status(500).json({ error: err.message });A
+  }
+});
+
+// PUT /api/deposits/:id
+app.put('/api/deposits/:id', async (req, res) => {
+  try {
+    const { amount, date, paymentMode } = req.body;
+    const targetId = req.params.id;
+
+    let deposit = null;
+    if (mongoose.Types.ObjectId.isValid(targetId)) {
+      deposit = await Deposit.findById(targetId);
+    }
+    if (!deposit) {
+      deposit = await Deposit.findOne({ id: targetId });
+    }
+    if (!deposit) return res.status(404).json({ error: 'Deposit record nahi mila' });
+
+    const user = await User.findById(deposit.userId);
+    if (!user) return res.status(404).json({ error: 'User nahi mila' });
+
+    const oldAmount = Number(deposit.amount) || 0;
+    const newAmount = Number(amount) || 0;
+    const diff = newAmount - oldAmount;
+
+    if (user.role === 'customer') {
+      user.balance -= diff;
+    } else {
+      user.balance += diff;
+    }
+    await user.save();
+
+    deposit.amount = newAmount;
+    if (date) deposit.date = new Date(date);
+    if (paymentMode) deposit.paymentMode = paymentMode;
+    deposit.newBalance = user.balance;
+
+    await deposit.save();
+    res.json({ message: 'Deposit updated successfully', deposit });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT /api/bills/:id
+app.put('/api/bills/:id', async (req, res) => {
+  try {
+    const targetId = req.params.id;
+    const { amount, directAmount, date } = req.body;
+
+    let bill = await Bill.findOne({ id: targetId });
+    if (!bill && mongoose.Types.ObjectId.isValid(targetId)) {
+      bill = await Bill.findById(targetId);
+    }
+    if (!bill) return res.status(404).json({ error: 'Bill record nahi mila' });
+
+    const customer = await User.findById(bill.customerId);
+    if (!customer) return res.status(404).json({ error: 'Customer nahi mila' });
+
+    const newAmt = Number(directAmount || amount) || bill.billAmount;
+    const diff = newAmt - bill.billAmount;
+
+    customer.balance += diff;
+    await customer.save();
+
+    bill.billAmount = newAmt;
+    bill.rawBillAmount = newAmt;
+    bill.newBalance = customer.balance;
+    if (date) bill.date = new Date(date);
+
+    await bill.save();
+    res.json({ message: 'Bill updated successfully', bill });
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
