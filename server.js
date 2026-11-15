@@ -98,24 +98,37 @@ const InwardSchema = new mongoose.Schema({
 });
 const Inward = mongoose.model('Inward', InwardSchema);
 
-// ================= ROUTES =================
-
-// Users
+// ================= USER ROUTES =================
 app.post('/api/users', async (req, res) => {
   try {
     const { name, phone, role, initialBalance } = req.body;
     if (!name) return res.status(400).json({ error: 'Name is required' });
-    const newUser = new User({ name, phone: phone || 'N/A', role: role || 'customer', balance: Number(initialBalance) || 0 });
+    const newUser = new User({ 
+      name, 
+      phone: phone || 'N/A', 
+      role: role || 'customer', 
+      balance: Number(initialBalance) || 0 
+    });
     await newUser.save();
     res.status(201).json({ message: 'User added', user: newUser });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { 
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
 app.get('/api/users', async (req, res) => {
   try {
     const users = await User.find();
-    res.json(users.map(u => ({ id: u._id.toString(), name: u.name, phone: u.phone, role: u.role, balance: u.balance })));
-  } catch (err) { res.status(500).json({ error: err.message }); }
+    res.json(users.map(u => ({ 
+      id: u._id.toString(), 
+      name: u.name, 
+      phone: u.phone, 
+      role: u.role, 
+      balance: u.balance 
+    })));
+  } catch (err) { 
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
 app.put('/api/users/update/:id', async (req, res) => {
@@ -128,7 +141,9 @@ app.put('/api/users/update/:id', async (req, res) => {
     if (balance !== undefined) user.balance = Number(balance);
     await user.save();
     res.json({ message: 'User updated successfully', user });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { 
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
 app.post('/api/users/delete/:id', async (req, res) => {
@@ -137,10 +152,12 @@ app.post('/api/users/delete/:id', async (req, res) => {
     if (secretCode !== ADMIN_SECRET_PIN) return res.status(403).json({ error: 'Galat PIN!' });
     await User.findByIdAndDelete(req.params.id);
     res.json({ message: 'Deleted' });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { 
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
-// Products
+// ================= PRODUCT / STOCK ROUTES =================
 app.post('/api/products', async (req, res) => {
   try {
     const { name, stock, purchasePrice, sellingPrice, unitType, supplierId } = req.body;
@@ -163,18 +180,39 @@ app.post('/api/products', async (req, res) => {
       product.supplierId = supplierId;
       product.supplierName = supplierName;
     } else {
-      product = new Product({ name, stock: quantity, purchasePrice: buyRate, sellingPrice: Number(sellingPrice) || 0, unitType: unitType || 'Kg', supplierId, supplierName });
+      product = new Product({ 
+        name, 
+        stock: quantity, 
+        purchasePrice: buyRate, 
+        sellingPrice: Number(sellingPrice) || 0, 
+        unitType: unitType || 'Kg', 
+        supplierId, 
+        supplierName 
+      });
     }
     await product.save();
     res.status(201).json({ message: 'Stock added', product });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { 
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
 app.get('/api/products', async (req, res) => {
   try {
     const prods = await Product.find();
-    res.json(prods.map(p => ({ id: p._id.toString(), name: p.name, stock: p.stock, purchasePrice: p.purchasePrice, sellingPrice: p.sellingPrice, unitType: p.unitType, supplierId: p.supplierId, supplierName: p.supplierName || 'N/A' })));
-  } catch (err) { res.status(500).json({ error: err.message }); }
+    res.json(prods.map(p => ({ 
+      id: p._id.toString(), 
+      name: p.name, 
+      stock: p.stock, 
+      purchasePrice: p.purchasePrice, 
+      sellingPrice: p.sellingPrice, 
+      unitType: p.unitType, 
+      supplierId: p.supplierId, 
+      supplierName: p.supplierName || 'N/A' 
+    })));
+  } catch (err) { 
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
 app.put('/api/products/update/:id', async (req, res) => {
@@ -189,17 +227,21 @@ app.put('/api/products/update/:id', async (req, res) => {
     if (unitType) product.unitType = unitType;
     await product.save();
     res.json({ message: 'Stock updated', product });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { 
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
 app.delete('/api/products/:id', async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);
     res.json({ message: 'Product removed' });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { 
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
-// Bills (Regular & Direct Lump-sum)
+// ================= BILL ROUTES =================
 app.post('/api/bills', async (req, res) => {
   try {
     const { userId, items, directAmount, note, paidAmount, customCommission, paymentMode, date } = req.body;
@@ -277,38 +319,48 @@ app.post('/api/bills', async (req, res) => {
 
     await newBill.save();
     res.status(201).json({ message: 'Bill saved successfully', bill: newBill });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { 
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
-// Bill Edit
+// Bill Edit (Resilient ID lookup)
 app.put('/api/bills/:id', async (req, res) => {
   try {
-    const billId = req.params.id;
+    const targetId = req.params.id;
     const { amount, directAmount, date, note } = req.body;
-    const bill = await Bill.findOne({ $or: [{ id: billId }, { _id: mongoose.Types.ObjectId.isValid(billId) ? billId : null }] });
+
+    let bill = await Bill.findOne({ id: targetId });
+    if (!bill && mongoose.Types.ObjectId.isValid(targetId)) {
+      bill = await Bill.findById(targetId);
+    }
     if (!bill) return res.status(404).json({ error: 'Bill missing' });
 
     const customer = await User.findById(bill.customerId);
     if (!customer) return res.status(404).json({ error: 'Customer missing' });
 
-    const newAmt = Number(directAmount || amount) || bill.billAmount;
-    const diff = newAmt - bill.billAmount;
+    const newAmt = Number(directAmount !== undefined ? directAmount : amount);
+    if (!isNaN(newAmt)) {
+      const diff = newAmt - bill.billAmount;
+      customer.balance += diff;
+      await customer.save();
 
-    customer.balance += diff;
-    await customer.save();
+      bill.billAmount = newAmt;
+      bill.rawBillAmount = newAmt;
+      bill.newBalance = customer.balance;
+    }
 
-    bill.billAmount = newAmt;
-    bill.rawBillAmount = newAmt;
-    bill.newBalance = customer.balance;
-    if (note) bill.note = note;
+    if (note !== undefined) bill.note = note;
     if (date) bill.date = new Date(date);
 
     await bill.save();
     res.json({ message: 'Bill modified successfully', bill });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { 
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
-// Deposits with Backdated / Custom Date Support
+// ================= DEPOSIT ROUTES =================
 app.post('/api/deposits', async (req, res) => {
   try {
     const { userId, amount, type, paymentMode, date } = req.body;
@@ -338,18 +390,32 @@ app.post('/api/deposits', async (req, res) => {
     });
     await deposit.save();
     res.json({ message: 'Deposit Saved', deposit });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { 
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
-// Deposit Rectification / Edit (1400 -> 1450)
+// Deposit Edit (Resilient ID lookup: ObjectId & String)
 app.put('/api/deposits/:id', async (req, res) => {
   try {
     const { amount, date, paymentMode } = req.body;
-    const deposit = await Deposit.findById(req.params.id);
-    if (!deposit) return res.status(404).json({ error: 'Deposit record missing' });
+    const targetId = req.params.id;
+
+    let deposit = null;
+    if (mongoose.Types.ObjectId.isValid(targetId)) {
+      deposit = await Deposit.findById(targetId);
+    }
+    if (!deposit) {
+      deposit = await Deposit.findOne({ id: targetId });
+    }
+    if (!deposit) {
+      return res.status(404).json({ error: 'Deposit record missing or not found' });
+    }
 
     const user = await User.findById(deposit.userId);
-    if (!user) return res.status(404).json({ error: 'Linked user missing' });
+    if (!user) {
+      return res.status(404).json({ error: 'Linked user missing' });
+    }
 
     const oldAmount = Number(deposit.amount) || 0;
     const newAmount = Number(amount) || 0;
@@ -368,11 +434,13 @@ app.put('/api/deposits/:id', async (req, res) => {
     deposit.newBalance = user.balance;
 
     await deposit.save();
-    res.json({ message: 'Deposit updated successfully', deposit });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+    res.json({ message: 'Deposit successfully updated', deposit });
+  } catch (err) { 
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
-// Timeline Ledger
+// ================= TIMELINE & LEDGER ROUTES =================
 app.get('/api/users/:id/timeline', async (req, res) => {
   try {
     const uid = req.params.id;
@@ -419,10 +487,12 @@ app.get('/api/users/:id/timeline', async (req, res) => {
 
     timeline.sort((a, b) => new Date(b.date) - new Date(a.date));
     res.json(timeline);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { 
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
-// Dashboard
+// ================= DASHBOARD & DEEP HISTORY =================
 app.get('/api/dashboard', async (req, res) => {
   try {
     const bills = await Bill.find();
@@ -470,135 +540,27 @@ app.get('/api/dashboard', async (req, res) => {
       todayWeightSold,
       todayItemsSoldList: Object.values(todayItemBreakdown)
     });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { 
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
+// Deep History: Provides all bills & deposits for date filter drill-down modals
+app.get('/api/dashboard/deep-history', async (req, res) => {
+  try {
+    const bills = await Bill.find();
+    const deposits = await Deposit.find();
+    const users = await User.find();
+    res.json({
+      allBills: bills,
+      allDeposits: deposits,
+      allUsers: users
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ================= SERVER START =================
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server live on port ${PORT}`));
-
-// PUT /api/deposits/:id - Resilient Update Endpoint
-app.put('/api/deposits/:id', async (req, res) => {
-  try {
-    const { amount, date, paymentMode } = req.body;
-    const targetId = req.params.id;
-
-    // Support both MongoDB _id and string id
-    let deposit = null;
-    if (mongoose.Types.ObjectId.isValid(targetId)) {
-      deposit = await Deposit.findById(targetId);
-    }
-    if (!deposit) {
-      deposit = await Deposit.findOne({ id: targetId });
-    }
-
-    if (!deposit) {
-      return res.status(404).json({ error: 'Deposit record missing or not found' });
-    }
-
-    const user = await User.findById(deposit.userId);
-    if (!user) {
-      return res.status(404).json({ error: 'Linked user missing' });
-    }
-
-    const oldAmount = Number(deposit.amount) || 0;
-    const newAmount = Number(amount) || 0;
-    const diff = newAmount - oldAmount;
-
-    // Recalculate balance
-    if (user.role === 'customer') {
-      user.balance -= diff;
-    } else {
-      user.balance += diff;
-    }
-    await user.save();
-
-    deposit.amount = newAmount;
-    if (date) {
-      // Ensure valid date parsing
-      deposit.date = new Date(date);
-    }
-    if (paymentMode) {
-      deposit.paymentMode = paymentMode;
-    }
-    deposit.newBalance = user.balance;
-
-    await deposit.save();
-    res.json({ message: 'Deposit successfully updated', deposit });
-  } catch (err) {
-    res.status(500).json({ error: err.message });A
-  }
-});
-
-// PUT /api/deposits/:id
-app.put('/api/deposits/:id', async (req, res) => {
-  try {
-    const { amount, date, paymentMode } = req.body;
-    const targetId = req.params.id;
-
-    let deposit = null;
-    if (mongoose.Types.ObjectId.isValid(targetId)) {
-      deposit = await Deposit.findById(targetId);
-    }
-    if (!deposit) {
-      deposit = await Deposit.findOne({ id: targetId });
-    }
-    if (!deposit) return res.status(404).json({ error: 'Deposit record nahi mila' });
-
-    const user = await User.findById(deposit.userId);
-    if (!user) return res.status(404).json({ error: 'User nahi mila' });
-
-    const oldAmount = Number(deposit.amount) || 0;
-    const newAmount = Number(amount) || 0;
-    const diff = newAmount - oldAmount;
-
-    if (user.role === 'customer') {
-      user.balance -= diff;
-    } else {
-      user.balance += diff;
-    }
-    await user.save();
-
-    deposit.amount = newAmount;
-    if (date) deposit.date = new Date(date);
-    if (paymentMode) deposit.paymentMode = paymentMode;
-    deposit.newBalance = user.balance;
-
-    await deposit.save();
-    res.json({ message: 'Deposit updated successfully', deposit });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// PUT /api/bills/:id
-app.put('/api/bills/:id', async (req, res) => {
-  try {
-    const targetId = req.params.id;
-    const { amount, directAmount, date } = req.body;
-
-    let bill = await Bill.findOne({ id: targetId });
-    if (!bill && mongoose.Types.ObjectId.isValid(targetId)) {
-      bill = await Bill.findById(targetId);
-    }
-    if (!bill) return res.status(404).json({ error: 'Bill record nahi mila' });
-
-    const customer = await User.findById(bill.customerId);
-    if (!customer) return res.status(404).json({ error: 'Customer nahi mila' });
-
-    const newAmt = Number(directAmount || amount) || bill.billAmount;
-    const diff = newAmt - bill.billAmount;
-
-    customer.balance += diff;
-    await customer.save();
-
-    bill.billAmount = newAmt;
-    bill.rawBillAmount = newAmt;
-    bill.newBalance = customer.balance;
-    if (date) bill.date = new Date(date);
-
-    await bill.save();
-    res.json({ message: 'Bill updated successfully', bill });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+app.listen(PORT, () => console.log(`🚀 Mandi Backend Engine live on port ${PORT}`));
